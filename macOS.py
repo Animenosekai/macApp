@@ -4,7 +4,7 @@ macApp
 A macOS .app information retriever\n
 © Anime no Sekai — 2020
 """
-from utils import utils
+from . import utils
 
 class NotAnApp(Exception):
     """

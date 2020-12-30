@@ -11,4 +11,4 @@ __author__ = 'Anime no Sekai'
 __license__ = 'MIT'
 __copyright__ = '© Anime no Sekai — 2020'
 
-from macOS import *
+from macApp.macOS import *
