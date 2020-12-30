@@ -34,7 +34,7 @@ def get_scaled_size(bytes, suffix="B"):
     factor = 1024
     for unit in ["", "K", "M", "G", "T", "P"]:
         if bytes < factor:
-            return f"{bytes:.2f}{unit}{suffix}"
+            return str(round(bytes, 2)) + unit + suffix
         bytes /= factor
 
 
@@ -53,9 +53,15 @@ def convert_to_int(element):
     """
     Safely converts anything to an integer
     """
-    element = sub("[^0-9-]", "", str(element).split('.')[0])
+    negative = False
+    if str(element)[0] == "-":
+        negative = True
+    element = sub("[^0-9]", "", str(element).split('.')[0])
     if element != '':
-        return int(element)
+        if negative:
+            return - int(element)
+        else:
+            return int(element)
     else:
         return 0
 

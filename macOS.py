@@ -32,7 +32,7 @@ class App():
     def __init__(self, path) -> None:
         if utils.isdir(path):
             self.path = str(path)
-            self._mdls_output = utils.check_output(f"mdls '{self.path}'", shell=True).decode("utf-8").split("\n")
+            self._mdls_output = utils.check_output("mdls '" + self.path + "'", shell=True).decode("utf-8").split("\n")
             
             def _getInfoFromMdls(line, string=False):
                 """
@@ -172,18 +172,19 @@ class App():
                 elif "kMDItemVersion" in element:
                     self.version = Version(_getInfoFromMdls(element, True))
         else:
-            raise NotAnApp(f"{str(path)} doesn't seem to be an app")
+            raise NotAnApp(str(path) + " doesn't seem to be an app")
 
     def __repr__(self) -> str:
         return str(self.name)
 
+    @property
     def as_dict(self):
         return {
             "displayName": self.display_name,
             "alternateNames": self.alternate_names,
             "category": self.category,
             "categoryType": self.category_type,
-            "bundleID": self.bundle_id.as_dict(),
+            "bundleID": self.bundle_id.as_dict,
             "creationDate": self.creation_date,
             "modificationDate": self.modification_date,
             "contentType": self.content_type,
@@ -215,11 +216,14 @@ class App():
             "physicalSizeRaw": self._physical_size,
             "useCount": self.use_count,
             "usedDates": self.used_dates,
-            "version": self.version.as_dict()
+            "version": self.version.as_dict,
+            "isRunning": self.is_running,
+            "pid": self.pid
         }
 
+    @property
     def as_json(self):
-        return utils.dumps(self.as_dict())
+        return utils.dumps(self.as_dict)
 
     @property
     def is_running(self):
@@ -227,7 +231,7 @@ class App():
         If the app is running
         """
         if self.name is not None:
-            if utils.check_output(f"pgrep -n {str(self.name)}", shell=True).decode("utf-8").replace(" ", "").lower() in [None, "null", "(null)", "none", ""]:
+            if utils.check_output("pgrep -n " + str(self.name), shell=True).decode("utf-8").replace(" ", "").lower() in [None, "null", "(null)", "none", ""]:
                 return False
             else:
                 return True
@@ -240,7 +244,7 @@ class App():
         Process ID of the app if is_running is True
         """
         if self.name is not None:
-            result = utils.check_output(f"pgrep -n {str(self.name)}", shell=True).decode("utf-8").replace(" ", "").lower()
+            result = utils.check_output("pgrep -n " + str(self.name), shell=True).decode("utf-8").replace(" ", "").lower()
             if result in [None, "null", "(null)", "none", ""]:
                 return None
             else:
@@ -255,18 +259,19 @@ class App():
         if self.name is not None:
             signal = utils.signal_to_name(signal)
             if signal is not None:
-                utils.check_output(f"killall {signal} {str(self.name)}", shell=True)
+                utils.check_output("killall " + signal + " " + str(self.name), shell=True)
             else:
-                utils.check_output(f"killall {str(self.name)}", shell=True)
+                utils.check_output("killall " + str(self.name), shell=True)
         else:
             raise AppNameNotFound("This App object has not been initialized correcly")
 
-    def uninstall(self, starting_path=OPTIMIZEDPATH):
+    def uninstall(self, starting_path=OPTIMIZEDPATH, no_warning=False):
         """
         Uninstalls the app
 
         Moves all of the files found by relatives() to a folder\n
         starting_path: (optional, str or <class macApp.utils.OptimizedPath>, default: OPTIMIZEDPATH) The starting point for relatives()
+        no_warning: (optional, bool, default: False) Will be passed to relatives()
         """
         iteration = 0
         resultName = self.name
@@ -314,7 +319,7 @@ class App():
 
         utils.move(self.path, resultName + "/" + utils.basename(self.path))
         addToReport(self.path, resultName + "/" + utils.basename(self.path))
-        for file in self.relatives(starting_path=starting_path):
+        for file in self.relatives(starting_path=starting_path, no_warning=no_warning):
             filename, extension = utils.splitext(file)
             if utils.exists(filename + extension):
                 iteration = 0
@@ -338,6 +343,7 @@ class App():
         Searches for all of the files which might be related to the app\n
 
         starting_path: Specifies the folder to start the recursion (the starting point of the search) (default to OPTIMIZEDPATH)
+        no_warning: Wether you want or not to display warnings
         """
         def check_files(directory):
             """
@@ -381,6 +387,7 @@ class BundleID():
     def __repr__(self) -> str:
         return str(self.id)
 
+    @property
     def as_dict(self):
         return {
             "id": self.id,
@@ -389,8 +396,9 @@ class BundleID():
             "app": self.app,
         }
     
+    @property
     def as_json(self):
-        return utils.dumps(self.as_dict())
+        return utils.dumps(self.as_dict)
 
 class Version():
     """
@@ -412,6 +420,7 @@ class Version():
     def __repr__(self) -> str:
         return str(self.version)
 
+    @property
     def as_dict(self):
         return {
             "version": self.version,
@@ -421,5 +430,6 @@ class Version():
             "other": self.other
         }
 
+    @property
     def as_json(self):
-        return utils.dumps(self.as_dict())
+        return utils.dumps(self.as_dict)
