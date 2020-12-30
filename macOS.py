@@ -104,7 +104,7 @@ class App():
                     self.display_name = _getInfoFromMdls(element, True)
                 elif "kMDItemAlternateNames" in element:
                     self.alternate_names = _getInfoListFromMdls(index)
-                elif "kMDItemAppStoreCategory" in element:
+                elif "kMDItemAppStoreCategory" in element and not "kMDItemAppStoreCategoryType" in element:
                     self.category = _getInfoFromMdls(element, True)
                 elif "kMDItemAppStoreCategoryType" in element:
                     self.category_type = _getInfoFromMdls(element, True)
@@ -114,7 +114,7 @@ class App():
                     self.creation_date = _getInfoFromMdls(element)
                 elif "kMDItemContentModificationDate" in element:
                     self.modification_date = _getInfoFromMdls(element)
-                elif "kMDItemContentType" in element:
+                elif "kMDItemContentType" in element and not "kMDItemContentTypeTree" in element:
                     self.content_type = _getInfoFromMdls(element, True)
                 elif "kMDItemContentTypeTree" in element:
                     self.content_type_tree = _getInfoListFromMdls(index)
@@ -287,8 +287,10 @@ class App():
         resultFile.append("App Information\n")
         resultFile.append("Name: " + str(self.name) + "\n")
         resultFile.append("Display Name: " + str(self.display_name) + "\n")
+        resultFile.append("Alternate Names: " + ", ".join(self.alternate_names) + "\n")
         resultFile.append("Filename: " + str(self.filename) + "\n")
         resultFile.append("Version: " + str(self.version) + "\n")
+        resultFile.append("Architectures: " + ", ".join(self.architectures) + "\n")
         resultFile.append("Category: " + str(self.category) + "\n")
         resultFile.append("Category Type: " + str(self.category_type) + "\n")
         resultFile.append("Copyright: " + str(self.copyright) + "\n")
@@ -297,6 +299,7 @@ class App():
         resultFile.append("Creation Date: " + str(self.creation_date) + "\n")
         resultFile.append("Modification Date: " + str(self.modification_date) + "\n")
         resultFile.append("Use Count: " + str(self.use_count) + "\n")
+        resultFile.append("Used Dates: " + ", ".join(self.used_dates) + "\n")
         resultFile.append("Last Used Date: " + str(self.last_used_date) + "\n")
         resultFile.append("Size: " + str(self.size) + "\n")
         resultFile.append("Logical Size: " + str(self.logical_size) + "\n")
